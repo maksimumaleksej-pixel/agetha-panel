@@ -417,6 +417,9 @@
             const initData = tg.initDataUnsafe;
             const user = initData.user;
             
+            // Читаем параметры из URL (для браузера)
+            const urlParams = new URLSearchParams(window.location.search);
+            
             if (user) {
                 userId = user.id;
                 document.getElementById('userName').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
@@ -427,9 +430,18 @@
                 } else {
                     document.getElementById('userAvatar').textContent = user.first_name.charAt(0).toUpperCase();
                 }
+            } else {
+                // Если нет данных от Telegram — берём из URL
+                userId = urlParams.get('user_id');
+                document.getElementById('userName').textContent = 'Пользователь';
+                document.getElementById('userUsername').textContent = userId ? 'ID: ' + userId : '';
             }
             
-            if (initData.start_param) {
+            // Получаем chat_id и role из URL или start_param
+            if (urlParams.get('chat_id')) {
+                chatId = urlParams.get('chat_id');
+                isAdmin = urlParams.get('role') === 'admin';
+            } else if (initData.start_param) {
                 const params = initData.start_param.split('_');
                 chatId = params[0];
                 isAdmin = params[1] === 'admin';
